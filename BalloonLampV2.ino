@@ -76,6 +76,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(nLEDs, NeoPixel_PIN, NEO_RGB + NEO_K
 //PROGRAM CONTROL
 unsigned long LoopStartMillis = 0;  // start time current main loop
 unsigned long CommsTimeout = 1000;    // How long to wait for expected bytes to arrive
+unsigned long randomwait = 0;
 
 //IRRemote
 IRrecv irrecv(IRrecv_PIN);
@@ -640,6 +641,74 @@ void ArrayToPixels(byte Array[]) {
     strip.show();              // Refresh LED states
   }
 }
+
+
+void SetRedBalloon(int red, int green, int blue) {
+  strip.setPixelColor(0, strip.Color(red, green, blue));
+  strip.setPixelColor(1, strip.Color(red, green, blue));
+  strip.setPixelColor(2, strip.Color(red, green, blue));
+  strip.setPixelColor(3, strip.Color(red, green, blue));
+  strip.show();
+}
+
+void SetYellowBalloon(int red, int green, int blue) {
+  strip.setPixelColor(4, strip.Color(red, green, blue));
+  strip.setPixelColor(5, strip.Color(red, green, blue));
+  strip.setPixelColor(6, strip.Color(red, green, blue));
+  strip.setPixelColor(7, strip.Color(red, green, blue));
+  strip.show();
+}
+
+void SetBlueBalloon(int red, int green, int blue) {
+  strip.setPixelColor(8, strip.Color(red, green, blue));
+  strip.setPixelColor(9, strip.Color(red, green, blue));
+  strip.setPixelColor(10, strip.Color(red, green, blue));
+  strip.setPixelColor(11, strip.Color(red, green, blue));
+  strip.show();
+}
+
+
+void RandomBlink(int long minwait, int long maxwait)
+{
+  if ((LoopStartMillis - LastDynamicModeAction) > randomwait ) { //is it time to update?
+    randomwait = (random(minwait, maxwait) * 100); // determines the NEXT interval
+    LastDynamicModeAction = LoopStartMillis;
+    DynamicModeStep++;
+
+    if (DynamicModeStep > 255) {
+      DynamicModeStep = 0;
+    }
+    if (DynamicModeStep % 2)
+    { //switch a light ON
+      switch (random(0, 3)) {
+
+        case 0:
+          {
+            SetYellowBalloon(255, 0, 0);
+            break;
+          }
+        case 1:
+          {
+            SetRedBalloon(0, 255, 0);
+            break;
+          }
+        case 2:
+          {
+            SetRedBalloon(0, 0, 255);
+            SetYellowBalloon(0, 0, 255);
+            break;
+          }
+      }
+    }
+    else // switch a light off - always the first action after a light was switched on
+    {
+      SetYellowBalloon(0, 0, 0);
+      SetRedBalloon(0, 0, 0);
+    }
+
+
+  } //end it's time to update
+} // end RandomBlink
 
 
 // Input a value 0 to 255 to get a color value.
